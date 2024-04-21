@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "go",
+            "name": "debug userManagementService.go",
+            "request": "launch",
+            "mode": "debug",
+            "args": [],
+            "program": "${workspaceFolder}"
+        },
+        {
+            "type": "go",
+            "name": "debug userRepository.go",
+            "request": "launch",
+            "mode": "auto",
+            "args": [],
+            "program": "${workspaceFolder}"
+        }
+    ]
+}
