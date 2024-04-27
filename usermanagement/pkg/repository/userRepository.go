@@ -4,6 +4,7 @@ import (
 	"fitnessme/usermanagement/pkg/db"
 	"fitnessme/usermanagement/pkg/models"
 
+	"github.com/google/uuid"
 	"github.com/pkg/errors"
 )
 
@@ -13,12 +14,29 @@ type UserRepository interface {
 	GetUserById(id string) (models.User, error)
 	UpdateUser(id string, updates map[string]interface{}) error
 	GetAllAdmins() ([]models.User, error)
+	GetUserNameById(id uuid.UUID) (string, error)
+	GetAllEmails() ([]string, error)
 }
 
 type userRepository struct{ handler db.Handler }
 
 func NewUserRepository(handler db.Handler) UserRepository {
 	return &userRepository{handler: handler}
+}
+func (u *userRepository) GetUserNameById(id uuid.UUID) (string, error) {
+	var user models.User
+	if err := u.handler.DB.Where("id = ?", id).First(&user).Error; err != nil {
+		return user.Name, errors.Wrap(err, "user not found")
+	}
+	return user.Name, nil
+}
+
+func (u *userRepository) GetAllEmails() ([]string, error) {
+	var emails []string
+	if err := u.handler.DB.Model(&models.User{}).Pluck("email", &emails).Error; err != nil {
+		return nil, err
+	}
+	return emails, nil
 }
 
 func (u *userRepository) GetAllAdmins() ([]models.User, error) {

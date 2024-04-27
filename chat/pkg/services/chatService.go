@@ -21,6 +21,7 @@ type ChatService interface {
 	GetMessages(w http.ResponseWriter, r *http.Request)
 	GetUnreadMessages(w http.ResponseWriter, r *http.Request)
 	ReadAll(w http.ResponseWriter, r *http.Request)
+	GetNewChatsForAdmin(w http.ResponseWriter, r *http.Request)
 }
 
 type chatService struct {
@@ -30,6 +31,59 @@ type chatService struct {
 
 func NewChatService(repo repository.ChatRepository, jwtWrapper *utils.JwtWrapper) ChatService {
 	return &chatService{repo: repo, jwtWrapper: jwtWrapper}
+}
+
+func (c *chatService) GetNewChatsForAdmin(w http.ResponseWriter, r *http.Request) {
+	admin_id := r.URL.Query().Get("id")
+
+	messages, err := c.repo.GetNewMessagesForAdmin(admin_id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var dtoUsers []dto.ChatAdminReturnDTO
+	userServiceURL := "http://localhost:3000/user/name?id="
+	client := &http.Client{}
+
+	for _, msg := range messages {
+
+		userURL := fmt.Sprintf("%s%s", userServiceURL, msg.SentBy)
+		resp, err := client.Get(userURL)
+		if err != nil {
+			http.Error(w, "Failed to get user name", http.StatusInternalServerError)
+			return
+		}
+
+		if resp.StatusCode != http.StatusOK {
+			http.Error(w, "Failed to fetch user name: HTTP status "+resp.Status, http.StatusInternalServerError)
+			resp.Body.Close()
+			return
+		}
+
+		var user struct {
+			Name string `json:"name"`
+		}
+
+		if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+			http.Error(w, "Failed to decode user details", http.StatusInternalServerError)
+			resp.Body.Close()
+			return
+		}
+
+		resp.Body.Close()
+
+		dto := dto.ChatAdminReturnDTO{
+			UserName: user.Name,
+			SentBy:   msg.SentBy,
+		}
+		dtoUsers = append(dtoUsers, dto)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(dtoUsers)
+
 }
 
 func (c *chatService) ReadAll(w http.ResponseWriter, r *http.Request) {

@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 type UserManagementService interface {
@@ -18,6 +20,8 @@ type UserManagementService interface {
 	GetUser(w http.ResponseWriter, r *http.Request)
 	UpdateUser(w http.ResponseWriter, r *http.Request)
 	GetAllAdmins(w http.ResponseWriter, r *http.Request)
+	GetNameById(w http.ResponseWriter, r *http.Request)
+	GetAllEmails(w http.ResponseWriter, r *http.Request)
 }
 
 type userManagementService struct {
@@ -27,6 +31,41 @@ type userManagementService struct {
 
 func NewUserManagementService(repo repository.UserRepository, jwtWrapper *utils.JwtWrapper) UserManagementService {
 	return &userManagementService{repo: repo, jwtWrapper: jwtWrapper}
+}
+
+func (u *userManagementService) GetAllEmails(w http.ResponseWriter, r *http.Request) {
+	emails, err := u.repo.GetAllEmails()
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	jsonResponse, err := json.Marshal(emails)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(jsonResponse)
+}
+
+func (u *userManagementService) GetNameById(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("id")
+	if id == "" {
+		http.Error(w, "Missing id query parameter", http.StatusBadRequest)
+		return
+	}
+	userName, err := u.repo.GetUserNameById(uuid.MustParse(id))
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(map[string]string{"name": userName}); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+
 }
 
 func (u *userManagementService) GetAllAdmins(w http.ResponseWriter, r *http.Request) {

@@ -129,6 +129,7 @@ func loadAuthRoutes(router chi.Router, chatService services.ChatService) {
 	router.Get("/messages", chatService.GetMessages)
 	router.Get("/unread", chatService.GetUnreadMessages)
 	router.Post("/readAll", chatService.ReadAll)
+	router.Get("/new_chats", chatService.GetNewChatsForAdmin)
 }
 
 func (a *ChatApp) Start(ctw context.Context) error {

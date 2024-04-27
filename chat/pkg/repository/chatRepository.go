@@ -16,12 +16,28 @@ type ChatRepository interface {
 	GetChatMessages(chatid string) ([]models.Message, error)
 	UnreadMessages(user1, user2 string) (int64, error)
 	ReadAll(user1, user2 string) error
+	GetNewMessagesForAdmin(admin_id string) ([]models.Message, error)
 }
 
 type chatRepository struct{ handler db.Handler }
 
 func NewChatRepository(handler db.Handler) ChatRepository {
 	return &chatRepository{handler: handler}
+}
+
+func (c *chatRepository) GetNewMessagesForAdmin(admin_id string) ([]models.Message, error) {
+	var messages []models.Message
+	// result := c.handler.DB.Where("sent_to = ? AND status = ?", admin_id, "delivered").Order("created_at asc").Find(&messages)
+	result := c.handler.DB.
+		Table("messages").
+		Select("DISTINCT ON (sent_by) *").
+		Where("sent_to = ? AND status = ?", admin_id, "delivered").
+		Order("sent_by, created_at DESC").
+		Find(&messages)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return messages, nil
 }
 
 func (c *chatRepository) ReadAll(user1, user2 string) error {

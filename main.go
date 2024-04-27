@@ -4,6 +4,7 @@ import (
 	"context"
 	chat "fitnessme/chat/cmd"
 	exercise "fitnessme/exercise/cmd"
+	notification "fitnessme/notifications/cmd"
 	usermanagement "fitnessme/usermanagement/cmd"
 	"fitnessme/utils"
 	workout "fitnessme/workout/cmd"
@@ -61,6 +62,14 @@ func main() {
 	chatApp := chat.New(jw)
 	go func() {
 		err := chatApp.Start(context.Background())
+		if err != nil {
+			fmt.Println("failed to start app: ", err)
+		}
+	}()
+
+	notificationApp := notification.New()
+	go func() {
+		err := notificationApp.Start(context.Background())
 		if err != nil {
 			fmt.Println("failed to start app: ", err)
 		}

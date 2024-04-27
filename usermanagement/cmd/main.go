@@ -60,6 +60,8 @@ func loadAuthRoutes(router chi.Router, repo repository.UserRepository, jwtWrappe
 	router.Get("/", userManagementService.GetUser)
 	router.Patch("/", userManagementService.UpdateUser)
 	router.Get("/admins", userManagementService.GetAllAdmins)
+	router.Get("/name", userManagementService.GetNameById)
+	router.Get("/emails", userManagementService.GetAllEmails)
 }
 
 func (a *UserApp) Start(ctx context.Context) error {
