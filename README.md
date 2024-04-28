@@ -8,7 +8,7 @@ Welcome to the FitnessMe Go backend, the server-side component of the FitnessMe 
 
 - **Microservices Architecture**: Organized into microservices for scalability and maintainability.
 - **RESTful API**: Provides a set of RESTful endpoints for communication with the Flutter front end.
-- **Database Integration**: Utilizes PostgreSQL for storing and managing user data, notifications, and other application resources.
+- **Database Integration**: Utilizes PostgreSQL for storing and managing user data, exercises, workouts, chat messages, notifications, and other application resources.
 - **Authentication**: Implements authentication and authorization mechanisms to secure API endpoints.
 - **Concurrency**: Utilizes Go's concurrency features for efficient handling of concurrent requests.
 
