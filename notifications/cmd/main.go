@@ -30,7 +30,7 @@ func New() *NotificationApp {
 }
 
 func (n *NotificationApp) Start(ctx context.Context) error {
-	_, err := n.cron.AddFunc("*/1 * * * *", func() {
+	_, err := n.cron.AddFunc("@daily", func() {
 		if err := n.service.ProcessNotifications(ctx); err != nil {
 			fmt.Println("Failed to process notifications: ", err)
 		}
@@ -45,14 +45,4 @@ func (n *NotificationApp) Start(ctx context.Context) error {
 	n.cron.Stop()
 
 	return nil
-	// for {
-	// 	select {
-	// 	case <-ctx.Done():
-	// 		return fmt.Errorf("context is canceled")
-	// 	default:
-	// 		if err := n.service.ProcessNotifications(ctx); err != nil {
-	// 			fmt.Println("Failed to process notifications: ", err)
-	// 		}
-	// 	}
-	// }
 }

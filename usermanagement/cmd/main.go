@@ -56,7 +56,7 @@ func loadRoutes(repo repository.UserRepository, jwtWrapper *utils.JwtWrapper) *c
 func loadAuthRoutes(router chi.Router, repo repository.UserRepository, jwtWrapper *utils.JwtWrapper) {
 	userManagementService := services.NewUserManagementService(repo, jwtWrapper)
 	router.Post("/register", userManagementService.Register)
-	router.Post("/login", userManagementService.Login)
+	router.Post("/", userManagementService.Login)
 	router.Get("/", userManagementService.GetUser)
 	router.Patch("/", userManagementService.UpdateUser)
 	router.Get("/admins", userManagementService.GetAllAdmins)

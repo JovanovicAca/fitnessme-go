@@ -196,11 +196,9 @@ func (u *userManagementService) Login(w http.ResponseWriter, r *http.Request) {
 
 	accessToken, err := u.jwtWrapper.GenerateToken(user)
 	if err != nil {
-		fmt.Print("2222")
 		http.Error(w, "failed to generate access token", http.StatusInternalServerError)
 		return
 	}
-	fmt.Print("111111")
 	w.Header().Set("Authorization", "Bearer "+accessToken)
 	w.WriteHeader(http.StatusOK)
 
